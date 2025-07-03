@@ -72,6 +72,7 @@ func (u *GameOfLife) Run(generations int, delay time.Duration) {
 	fmt.Printf("Original Generation:\n")
 	u.Display()
 	for i := 1; i <= generations; i++ {
+		fmt.Print("\033[H\033[2J") // Clear screen before printing next frame
 		fmt.Printf("Generation: %d\n", i)
 		u.CreateNextGeneration()
 		u.Display()

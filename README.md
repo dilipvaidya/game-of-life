@@ -75,25 +75,104 @@ go run .
 
 Assume there are `n` number of rows and `m` number of columns in the universe
 1. Time complexity: 
-> O(n x m x 8) -> O(n x m); 8 is the time
+> O(n x m x 8) -> O(n x m); for every cell, 8 neighbours will be travelled in constant time.
 2. Space Complexity:
-> O(n x m) 
+> O(n x m x 8) -> O(n x m); for every cell, 8 neighbours will be travelled in constant time
 
 ##### limitations
-1. This solution won't scale well for bigger values of `n` and `m` like 1000.
+1. This solution won't scale well for larger sparse grid with values of `n` and `m` in 1000.
 
 </details>
 
 #### Optimized algorithm
 <details>
 
-###### ideas
-1. use better data structure. Universe has only binary values, could that be used?
+> Hint: What if the universe grid is sparse with alive cells?
+
+1. Let's call a game grid as a `universe` which is optimized to store only alive cells - set. Only cell that is maintaining its aliveness from previous generation or the cell that is reviving from dead will be added into the set.
+2. While producing next generation universe, algorithm will - 
+- generate a map of the neighbours to the alive node as key and count of their alive neighbours as value, 
+- iterate over this map to find out if it can be revived (currently dead with 3 live neighbours), and add into set if so. 
+- iterate over the alive cell's set to find if any of them will remain alive or will die per their count of alive neighbours (map above).
+
+##### Time and Space Complexity
+
+<p>
+
+Assume there are `l` alive cells in the universe at current generation and alive cells are controlled to max `l`
+1. Time complexity: 
+> O(l x 8) -> O(l); for every cell, 8 neighbours will be travelled in constant time
+2. Space Complexity: 
+> O(l x 8) -> O(l); for every cell, 8 neighbours will be travelled in constant time
+
+
+##### performance benchmark:
+<details>
+
+<p>
+
+Performance benchmarks below proves, with optimized data structure and algorithm, running time is totally depend on the number of alive cells and not on the size of the universe grid.
+
+1. Benchmark: 100X100 grid with glider pattern (5 out of 10000 cells alive)
+    ```shell
+    Running tool: /usr/local/go/bin/go test -benchmem -run=^$ -bench ^BenchmarkCreateNextGeneration_100x100_Glider$ github.com/dilipvaidya/game-of-life/gameoflife
+
+    goos: darwin
+    goarch: amd64
+    pkg: github.com/dilipvaidya/game-of-life/gameoflife
+    cpu: Intel(R) Core(TM) i7-9750H CPU @ 2.60GHz
+    BenchmarkCreateNextGeneration_100x100_Glider-12    	  615019	      1882 ns/op	     705 B/op	       7 allocs/op
+    PASS
+    ok  	github.com/dilipvaidya/game-of-life/gameoflife	2.479s
+    ```
+
+2. 1000X1000 grid with glider pattern (5 out of 1000000 cells alive)
+    ```shell
+    Running tool: /usr/local/go/bin/go test -benchmem -run=^$ -bench ^BenchmarkCreateNextGeneration_1000x1000_Glider$ github.com/dilipvaidya/game-of-life/gameoflife
+
+    goos: darwin
+    goarch: amd64
+    pkg: github.com/dilipvaidya/game-of-life/gameoflife
+    cpu: Intel(R) Core(TM) i7-9750H CPU @ 2.60GHz
+    BenchmarkCreateNextGeneration_1000x1000_Glider-12    	  636194	      1896 ns/op	     707 B/op	       7 allocs/op
+    PASS
+    ok  	github.com/dilipvaidya/game-of-life/gameoflife	2.582s
+    ```
+
+3. 100X100 grid with 50% live cells
+    ```shell
+    Running tool: /usr/local/go/bin/go test -benchmem -run=^$ -bench ^BenchmarkCreateNextGeneration_100x100$ github.com/dilipvaidya/game-of-life/gameoflife
+
+    goos: darwin
+    goarch: amd64
+    pkg: github.com/dilipvaidya/game-of-life/gameoflife
+    cpu: Intel(R) Core(TM) i7-9750H CPU @ 2.60GHz
+    BenchmarkCreateNextGeneration_100x100-12    	    4142	    276222 ns/op	  168596 B/op	     114 allocs/op
+    PASS
+    ok  	github.com/dilipvaidya/game-of-life/gameoflife	3.065s
+    ```
+
+4. 1000X1000 grid with 50% live cells
+    ```shell
+    Running tool: /usr/local/go/bin/go test -benchmem -run=^$ -bench ^BenchmarkCreateNextGeneration_1000x1000$ github.com/dilipvaidya/game-of-life/gameoflife
+
+    goos: darwin
+    goarch: amd64
+    pkg: github.com/dilipvaidya/game-of-life/gameoflife
+    cpu: Intel(R) Core(TM) i7-9750H CPU @ 2.60GHz
+    BenchmarkCreateNextGeneration_1000x1000-12    	      26	  39910036 ns/op	 8812968 B/op	    3033 allocs/op
+    PASS
+    ok  	github.com/dilipvaidya/game-of-life/gameoflife	10.706s
+    ```
+</p>
+
+</details>
 
 </details>
 
 ### Next steps
-1. find better data structure to hold the universe/grid to improve time and space complexity.
-2. Write performance test suite.
-3. User of glider pattern to generate the seed universe.
-4. Modulerize and clean code
+1. Performance improvment: Is it possible to use in-place updates to avoid runtime memory allocation? 
+- every time next generation of the universe is created, new copy is being written and old will be garbage collected. 
+- in place updates will avoind run time memory allocation drastically. 
+- `sync.pool` can be used to pre-allocate active and passive universe/memory blocks which will be alternatively used while generating next generation which will reduce the runtime memory allocation drastically. Cleaup of the passive universe can be handed over to another thread. 
+2. add UI component, a canvas kind, which will be updated for every next universe generation rather than displaying universe on the console - not a goal of exercise.

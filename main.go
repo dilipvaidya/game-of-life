@@ -23,6 +23,8 @@ func main() {
 	seedPatternStr := flag.String("seed", gameoflife.Default.String(), "Seed pattern for the universe (default, glider)")
 	rows := flag.Int("rows", 5, "Number of rows in the universe")
 	cols := flag.Int("cols", 5, "Number of columns in the universe")
+	ruleNames := flag.String("rules", "conway", fmt.Sprintf("Comma-separated rule names (e.g., conway,no-top-left). Available: %v", gameoflife.AvailableRuleNames()))
+	numberOfRuns := flag.Int("runs", 25, "Number of runs to execute")
 
 	// Parse the command line flags
 	flag.Parse()
@@ -39,6 +41,7 @@ func main() {
 	}
 
 	// Create the Game of Life universe with the specified seed pattern and dimensions
-	game := gameoflife.CreateSeedUniverse(*rows, *cols, seedPattern)
-	game.Run(25, 500*time.Millisecond)
+	rules := gameoflife.ParseRulesFromString(*ruleNames)
+	game := gameoflife.CreateSeedUniverse(*rows, *cols, seedPattern, rules...)
+	game.Run(*numberOfRuns, 500*time.Millisecond)
 }

@@ -62,14 +62,18 @@ function of the preceding one). The rules continue to be applied repeatedly to c
 2. Take help to learn the command line arguments being accepted by the program
     ```shell 
     game-of-life % go run . -help                            
-    Usage of /var/folders/xt/l7kq1dlx3fj8s3p15prcpy9w0000gn/T/go-build2668948479/b001/exe/game-of-life:
+    Usage of /var/folders/xt/l7kq1dlx3fj8s3p15prcpy9w0000gn/T/go-build2568731570/b001/exe/game-of-life:
     This is a custom usage message.
-      -cols int
-            Number of columns in the universe (default 5)
-      -rows int
-            Number of rows in the universe (default 5)
-      -seed string
-            Seed pattern for the universe (default, glider) (default "default")
+        -cols int
+                Number of columns in the universe (default 5)
+        -rows int
+                Number of rows in the universe (default 5)
+        -rules string
+                Comma-separated rule names (e.g., conway,no-top-left). Available: [conway no-top-left] (default "conway")
+        -runs int
+                Number of runs to execute (default 25)
+        -seed string
+                Seed pattern for the universe (default, glider) (default "default")
     ```
 
  3. execute with appropriate command line values
@@ -173,6 +177,10 @@ Performance benchmarks below proves, with optimized data structure and algorithm
     ```
 
 </details>
+
+### Recent modifications those were not in the actual requirements
+1. Accept which rules to apply dynamically from command line arguments.
+2. Wrap around the pattern when it tried to go beyond the universe grid border - bottum-right should start appearing from the top-left so on and so forth.
 
 ### Next steps
 1. Performance improvment: Is it possible to use in-place updates to avoid runtime memory allocation? 
